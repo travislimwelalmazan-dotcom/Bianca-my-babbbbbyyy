@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #ffeef2, #fff7f0);
+  font-family: 'Courier New', cursive;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 95%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Envelope - realistic minimal */
+.envelope {
+  width: 100%;
+  height: 200px;
+  background: #fff8f0; 
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  transition: transform 0.6s ease-in-out;
+}
+
+.flap {
+  position: absolute;
+  width: 100%;
+  height: 100px;
+  background: #f5f1ea;
+  top: 0;
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+  transition: transform 1s ease-in-out;
+  transform-origin: top;
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.05);
+}
+
+.letter {
+  position: absolute;
+  width: 90%;
+  left: 5%;
+  background: #fffdf7;
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.03);
+  top: 20px;
+  transform: translateY(120px);
+  opacity: 0;
+  transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: left;
+  min-height: 220px;
+  white-space: pre-wrap;
+}
+
+.open .flap { transform: rotateX(180deg); }
+.open .letter { transform: translateY(-160px); opacity: 1; }
+
+.flower {
+  width: 50px;
+  margin-top: 15px;
+  opacity: 0;
+  transform: scale(0);
+  transition: transform 2s ease-out, opacity 2s ease-out;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Sparkles */
+.sparkle {
+  position: absolute;
+  font-size: 12px;
+  opacity: 1;
+  color: #ff6f91;
+  pointer-events: none;
+  animation: sparkleMove 2s forwards;
+}
+
+@keyframes sparkleMove {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+}
+
+/* Falling hearts */
+.heart {
+  position: fixed;
+  top: -10px;
+  pointer-events: none;
+  color: #ff6f91;
+  animation: fall 6s linear forwards;
+}
+
+@keyframes fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+h2 { text-align:center; color:#d75a7b; margin:0; }
+button {
+  padding:6px 12px;
+  margin:5px;
+  border:none;
+  background:#d75a7b;
+  color:white;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+button:hover { transform:scale(1.1); transition: 0.3s; }
+</style>
+</head>
+<body>
+
+<!-- Background music -->
+<audio id="bgMusic" loop>
+  <source src="https://raw.githubusercontent.com/travislimwelalmazan-dotcom/Bianca-baby/refs/heads/main/Coldplay%20-%20Sparks%20-%20Original%20Instrumental.mp3.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container">
+  <div class="envelope" onclick="openEnvelope()" id="envelope">
+    <div class="flap"></div>
+    <div class="letter" id="letter">
+      <h2>Will you be my Valentine?</h2>
+      <div id="typedText"></div>
+      <br>
+      <button onclick="showLetter(event)">Yes</button>
+      <button id="noBtn">No</button>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Red_Rose.svg/50px-Red_Rose.svg.png" class="flower" id="flower" alt="Flower">
+    </div>
+  </div>
+</div>
+
+<script>
+const letterMessage = `Hi baby, Happy Valentines Day! we’ve known each other for almost 3 years, and sadly we weren’t together during the past Valentines. For this Valentines, I hope you’re going to enjoy this day for yourself! I’m sorry if I can’t take you out to a proper date this time, but when the time comes, I’ll gladly take you out every night, because every night will be our date night! I love you so much baby!!!`;
+
+function openEnvelope(){
+  document.getElementById("envelope").classList.add("open"); 
+  // Play Coldplay Sparks instrumental on tap
+  const music = document.getElementById("bgMusic");
+  music.play().catch(()=>{}); // iOS autoplay restrictions
+}
+
+function showLetter(e){
+  e.stopPropagation();
+  const typedDiv = document.getElementById("typedText");
+  typedDiv.innerHTML = '';
+  typedDiv.style.opacity = 1;
+  typeWriter(0);
+}
+
+function typeWriter(i){
+  if(i < letterMessage.length){
+    document.getElementById("typedText").innerHTML += letterMessage.charAt(i);
+    setTimeout(()=>typeWriter(i+1),40);
+  }else{
+    const flower = document.getElementById("flower");
+    flower.style.opacity = 1;
+    flower.style.transform="scale(1)";
+    startSparkles(flower);
+  }
+}
+
+// No button runs away
+const noBtn = document.getElementById("noBtn");
+noBtn.addEventListener("touchstart", moveButton);
+noBtn.addEventListener("mouseover", moveButton);
+function moveButton(){
+  const letterDiv = document.getElementById("letter");
+  const maxX = letterDiv.clientWidth - noBtn.offsetWidth;
+  const maxY = letterDiv.clientHeight - noBtn.offsetHeight;
+  noBtn.style.position = "absolute";
+  noBtn.style.left = Math.random()*maxX + "px";
+  noBtn.style.top = Math.random()*maxY + "px";
+}
+
+// Falling hearts
+function createHeart(){
+  const heart = document.createElement("div");
+  heart.classList.add("heart");
+  heart.innerHTML="♥";
+  heart.style.left = Math.random()*100 + "vw";
+  heart.style.fontSize = (Math.random()*15+15) + "px";
+  heart.style.animationDuration = (Math.random()*6+6)+"s";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),12000);
+}
+setInterval(createHeart,500);
+
+// Sparkles
+function startSparkles(flower){
+  const flowerRect = flower.getBoundingClientRect();
+  let count = 0;
+  const sparkleInterval = setInterval(()=>{
+    if(count > 15){ clearInterval(sparkleInterval); return; }
+    const sparkle = document.createElement("div");
+    sparkle.classList.add("sparkle");
+    sparkle.style.left = (flowerRect.left + flowerRect.width/2 + (Math.random()*20-10)) + "px";
+    sparkle.style.top = (flowerRect.top + flowerRect.height/2) + "px";
+    document.body.appendChild(sparkle);
+    setTimeout(()=>sparkle.remove(),2000);
+    count++;
+  },150);
+}
+</script>
+</body>
+</html>
